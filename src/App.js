@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import './App.css';
+import logo from './logo.svg';
 
 function MyComponent() {
   //const [formData, setFormData] = useState({ name: '', email: '' });
@@ -21,7 +23,6 @@ function MyComponent() {
         }
       };
 
-      console.log(apiString);
 
       const response = await fetch('https://w75zszy1n7.execute-api.us-east-2.amazonaws.com/test/dynamodbmanager', {
         method: 'POST',
@@ -50,12 +51,6 @@ function MyComponent() {
       if (response.ok) {
         // Request was successful
         console.log('POST request succeeded');
-        if (jsonData.hasOwnProperty('Item')){
-          console.log(jsonData);
-        }
-        else {
-          console.log("User does not exist");
-        }
       } else {
         // Request was not successful
         console.log('POST request failed');
@@ -72,7 +67,9 @@ function MyComponent() {
 
   return (
     
-    <div>
+    
+    <div className="App-header">
+      <link rel="shortcut icon" type="image/x-icon" href="https://cdn.discordapp.com/attachments/1121243216184872970/1122586567580586015/logo.png" />
       <h1>Udra</h1>
       <img src="https://cdn.discordapp.com/attachments/1121243216184872970/1122586567580586015/logo.png" alt="Udra Logo" width="256" height="256"></img>
       <br />
@@ -102,6 +99,7 @@ function MyComponent() {
         )}
     </div>
     </div>
+    
   );
 }
 
