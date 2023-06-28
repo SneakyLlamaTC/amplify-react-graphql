@@ -39,7 +39,8 @@
   }
 }
 
-body {
+
+.background-container {
   background-image: url('natureBackground.png');
   background-repeat: no-repeat;
   background-size: cover;

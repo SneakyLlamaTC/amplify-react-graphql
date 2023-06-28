@@ -93,7 +93,7 @@ function MyComponent() {
   return (
     
     
-    <body>
+    <div className="background-container">
       <div className="container">
         <div className="translucent-frame">
           <div className="title-content">
@@ -133,7 +133,7 @@ function MyComponent() {
           </div>
         </div>
       </div>
-    </body>
+    </div>
     
   );
 }
