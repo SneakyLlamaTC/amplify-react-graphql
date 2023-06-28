@@ -58,7 +58,7 @@ body {
   background-color: rgba(255, 255, 255, 0.6); /* Translucent white background */
   border-radius: 20px; /* Rounded edges */
   box-shadow: 0 0 40px rgba(0, 0, 0, 0.8); /* Box shadow for depth effect */
-  width: 500px;
+  width: 40vh;
   display: flex;
   flex-direction: column;
   
@@ -84,4 +84,17 @@ body {
   justify-content: left;
   font-size: calc(4px + 2vmin);
   color: rgb(0, 0, 0);
+}
+
+.circle-image {
+  width: 60%;
+  height: auto;
+  border-radius: 100%; /* Clip the image to a circle shape */
+  overflow: hidden; /* Hide any overflow beyond the circle */
+}
+
+.circle-image img {
+  width: 100%; /* Make the image fill the container */
+  height: 100%;
+  object-fit: cover; /* Maintain the aspect ratio and cover the container */
 }

@@ -74,7 +74,9 @@ function MyComponent() {
           <div class="title-content">
             <link rel="shortcut icon" type="image/x-icon" href="https://cdn.discordapp.com/attachments/1121243216184872970/1122586567580586015/logo.png" />
             <h1>Udra</h1>
-            <img src="https://cdn.discordapp.com/attachments/1121243216184872970/1122586567580586015/logo.png" alt="Udra Logo" width="256" height="256"></img>
+            <div class="circle-image">
+              <img src="https://cdn.discordapp.com/attachments/1121243216184872970/1122586567580586015/logo.png" alt="Udra Logo" width="256" height="256"></img>
+            </div>
             <br />
             <br />
             <div class="content">
