@@ -68,37 +68,45 @@ function MyComponent() {
   return (
     
     
-    <div className="App-header">
-      <link rel="shortcut icon" type="image/x-icon" href="https://cdn.discordapp.com/attachments/1121243216184872970/1122586567580586015/logo.png" />
-      <h1>Udra</h1>
-      <img src="https://cdn.discordapp.com/attachments/1121243216184872970/1122586567580586015/logo.png" alt="Udra Logo" width="256" height="256"></img>
-      <br />
-      <br />
-      <form onSubmit={handleSubmit}>
-        <label>
-          Name:
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-          />
-        </label>
-        <br />
-        <br />
-        <button type="submit">Submit</button>
-      </form>
-      <div>
-        {jsonDisplay ? (
-          <div>
-            <h2>Name: {jsonDisplay.Item.id}</h2>
-            <p>Number: {jsonDisplay.Item.number}</p>
+    <body>
+      <div class="container">
+        <div class="translucent-frame">
+          <div class="title-content">
+            <link rel="shortcut icon" type="image/x-icon" href="https://cdn.discordapp.com/attachments/1121243216184872970/1122586567580586015/logo.png" />
+            <h1>Udra</h1>
+            <img src="https://cdn.discordapp.com/attachments/1121243216184872970/1122586567580586015/logo.png" alt="Udra Logo" width="256" height="256"></img>
+            <br />
+            <br />
+            <div class="content">
+              <form onSubmit={handleSubmit}>
+                <label>
+                  Name:
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                  />
+                </label>
+                <br />
+                <br />
+                <button type="submit">Submit</button>
+              </form>
+              <div>
+                {jsonDisplay ? (
+                  <div>
+                    <h2>Name: {jsonDisplay.Item.id}</h2>
+                    <p>Number: {jsonDisplay.Item.number}</p>
+                  </div>
+                ) : (
+                  <p>Enter a user to retrieve their details</p>
+                )}
+              </div>
+            </div>
           </div>
-        ) : (
-          <p>Enter a user to retrieve their details</p>
-        )}
-    </div>
-    </div>
+        </div>
+      </div>
+    </body>
     
   );
 }
