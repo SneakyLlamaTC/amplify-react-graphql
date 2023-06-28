@@ -14,7 +14,7 @@ function MyComponent() {
     try {
 
       const idValue = formData.name;
-      const apiString = {
+      const apiStringRead = {
         "operation": "read",
         "payload": {
           "Key": {
@@ -22,6 +22,7 @@ function MyComponent() {
           }
         }
       };
+      
 
 
       const response = await fetch('https://w75zszy1n7.execute-api.us-east-2.amazonaws.com/test/dynamodbmanager', {
@@ -30,12 +31,36 @@ function MyComponent() {
           'Content-Type': 'application/json'
         },
         
-        body: JSON.stringify(apiString)
+        body: JSON.stringify(apiStringRead)
       });
 
       const jsonData = await response.json();
       if (jsonData.hasOwnProperty('Item')) {
         setJsonData(jsonData);
+        console.log(jsonData.Item.number)
+        const apiStringUpdate = {
+          "operation": "update",
+          "payload": {
+            "Key": {
+              "id": `${idValue}`
+            },
+            "AttributeUpdates": {
+              "number": {
+                "Value": jsonData.Item.number + 1
+              }
+            }
+          }
+        };
+        const response = await fetch('https://w75zszy1n7.execute-api.us-east-2.amazonaws.com/test/dynamodbmanager', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+
+       
+
+        body: JSON.stringify(apiStringUpdate)
+        }); 
       }
       else {
         const noUserData = { 
@@ -69,17 +94,17 @@ function MyComponent() {
     
     
     <body>
-      <div class="container">
-        <div class="translucent-frame">
-          <div class="title-content">
-            <link rel="shortcut icon" type="image/x-icon" href="https://cdn.discordapp.com/attachments/1121243216184872970/1122586567580586015/logo.png" />
+      <div className="container">
+        <div className="translucent-frame">
+          <div className="title-content">
+            <link rel="shortcut icon" type="image/x-icon" href="udralogo.png" />
             <h1>Udra</h1>
-            <div class="circle-image">
-              <img src="https://cdn.discordapp.com/attachments/1121243216184872970/1122586567580586015/logo.png" alt="Udra Logo" width="256" height="256"></img>
+            <div className="circle-image">
+              <img src="udralogo.png" alt="Udra Logo" width="256" height="256"></img>
             </div>
             <br />
             <br />
-            <div class="content">
+            <div className="content">
               <form onSubmit={handleSubmit}>
                 <label>
                   Name:
@@ -92,16 +117,16 @@ function MyComponent() {
                 </label>
                 <br />
                 <br />
-                <button type="submit">Submit</button>
+                <button type="submit">Refill Bottle</button>
               </form>
               <div>
                 {jsonDisplay ? (
                   <div>
-                    <h2>Name: {jsonDisplay.Item.id}</h2>
-                    <p>Number: {jsonDisplay.Item.number}</p>
+                    <h2>{jsonDisplay.Item.id}</h2>
+                    <p>Bottles Consumed: {jsonDisplay.Item.number + 1}</p>
                   </div>
                 ) : (
-                  <p>Enter a user to retrieve their details</p>
+                  <p></p>
                 )}
               </div>
             </div>
