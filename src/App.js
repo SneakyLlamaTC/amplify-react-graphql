@@ -22,55 +22,76 @@ function MyComponent() {
           }
         }
       };
+
+      const currentDate = new Date();
+      const isoString = currentDate.toISOString();
+      //const isoString = currentDate.toUTCString();
       
-
-
-      const response = await fetch('https://w75zszy1n7.execute-api.us-east-2.amazonaws.com/test/dynamodbmanager', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        
-        body: JSON.stringify(apiStringRead)
-      });
-
-      const jsonData = await response.json();
-      if (jsonData.hasOwnProperty('Item')) {
-        setJsonData(jsonData);
-        console.log(jsonData.Item.number)
-        const apiStringUpdate = {
-          "operation": "update",
-          "payload": {
-            "Key": {
-              "id": `${idValue}`
-            },
-            "AttributeUpdates": {
-              "number": {
-                "Value": jsonData.Item.number + 1
-              }
-            }
-          }
-        };
-        const response = await fetch('https://w75zszy1n7.execute-api.us-east-2.amazonaws.com/test/dynamodbmanager', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-
-       
-
-        body: JSON.stringify(apiStringUpdate)
-        }); 
-      }
-      else {
-        const noUserData = { 
+      const apiStringPut = {
+        "operation": "create",
+        "payload": {
           "Item": {
-            "id": "User not found",
-            "number": 0
+            "id": `${idValue}`,
+            "dt": `${isoString}`,
+            "quantity": 1
+          }
         }
-         };
-        setJsonData(noUserData);
-      }
+      };
+      
+      const response = await fetch('https://w75zszy1n7.execute-api.us-east-2.amazonaws.com/test/dynamodbmanager', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+
+      body: JSON.stringify(apiStringPut)
+      }); 
+
+      // const response = await fetch('https://w75zszy1n7.execute-api.us-east-2.amazonaws.com/test/dynamodbmanager', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json'
+      //   },
+        
+      //   body: JSON.stringify(apiStringRead)
+      // });
+
+      // const jsonData = await response.json();
+      // if (jsonData.hasOwnProperty('Item')) {
+      //   setJsonData(jsonData);
+      //   console.log(jsonData.Item.number)
+      //   const apiStringUpdate = {
+      //     "operation": "update",
+      //     "payload": {
+      //       "Key": {
+      //         "id": `${idValue}`
+      //       },
+      //       "AttributeUpdates": {
+      //         "number": {
+      //           "Value": jsonData.Item.number + 1
+      //         }
+      //       }
+      //     }
+      //   };
+
+        // const response = await fetch('https://w75zszy1n7.execute-api.us-east-2.amazonaws.com/test/dynamodbmanager', {
+        // method: 'POST',
+        // headers: {
+        //   'Content-Type': 'application/json'
+        // },
+
+        // body: JSON.stringify(apiStringUpdate)
+        // }); 
+      // }
+      // else {
+      //   const noUserData = { 
+      //     "Item": {
+      //       "id": "User not found",
+      //       "number": 0
+      //   }
+      //    };
+      //   setJsonData(noUserData);
+      // }
       
       // Handle the response as needed
       if (response.ok) {
