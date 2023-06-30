@@ -1,8 +1,33 @@
 import React, { useState } from 'react';
 import './App.css';
 import logo from './logo.svg';
+import Chart from 'chart.js/auto';
+import { Line } from "react-chartjs-2";
+
+function UnderConstructionView() {
+  return (
+    <div>
+      <h1>This site is under construction.</h1>
+    </div>
+  )
+}
 
 function MyComponent() {
+
+  //Chart data
+  const data = {
+    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+    datasets: [
+      {
+        label: 'Last 7 Days',
+        data: [65, 59, 80, 81, 56, 55, 40],
+        fill: true,
+        borderColor: 'rgb(75, 192, 192)',
+        tension: 0.1
+      }
+    ]
+  };
+
   //const [formData, setFormData] = useState({ name: '', email: '' });
   const [formData, setFormData] = useState({ name: ''});
 
@@ -24,21 +49,47 @@ function MyComponent() {
       };
 
       const currentDate = new Date();
-      const isoString = currentDate.toISOString();
-      //const isoString = currentDate.toUTCString();
+      const isoString_now = currentDate.toISOString();
+
+      const fromDate = new Date();
+      fromDate.setDate(currentDate.getDate() - 7);
+      const isoString_from_date = fromDate.toISOString();
+      console.log(isoString_from_date);
+      
       
       const apiStringPut = {
         "operation": "create",
         "payload": {
           "Item": {
             "id": `${idValue}`,
-            "dt": `${isoString}`,
+            "dt": `${isoString_now}`,
             "quantity": 1
           }
         }
       };
+
+      const api_query_user_since_date = {
+        "operation": "query",
+        "payload": {
+            "TableName": "udra-one",
+            "KeyConditionExpression": "#partitionKey = :partitionValue AND #sortKey >= :sortValue",
+            "ExpressionAttributeNames": {
+                "#partitionKey": "id",
+                "#sortKey": "dt"
+            },
+            "ExpressionAttributeValues": {
+                ":partitionValue": `${idValue}`,
+                ":sortValue": `${isoString_from_date}` 
+            },
+            "ConsistentRead": true
+        }
+      };
+
       
-      const response = await fetch('https://w75zszy1n7.execute-api.us-east-2.amazonaws.com/test/dynamodbmanager', {
+
+      
+      //Create Entry
+      var response = await fetch('https://w75zszy1n7.execute-api.us-east-2.amazonaws.com/test/dynamodbmanager', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -46,6 +97,18 @@ function MyComponent() {
 
       body: JSON.stringify(apiStringPut)
       }); 
+
+      //Query all Entries from User since Time X
+      response = await fetch('https://w75zszy1n7.execute-api.us-east-2.amazonaws.com/test/dynamodbmanager', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+
+      body: JSON.stringify(api_query_user_since_date)
+      }); 
+
+      const jsonData = await response.json();
 
       // const response = await fetch('https://w75zszy1n7.execute-api.us-east-2.amazonaws.com/test/dynamodbmanager', {
       //   method: 'POST',
@@ -97,6 +160,7 @@ function MyComponent() {
       if (response.ok) {
         // Request was successful
         console.log('POST request succeeded');
+        console.log(jsonData);
       } else {
         // Request was not successful
         console.log('POST request failed');
@@ -152,12 +216,20 @@ function MyComponent() {
               </div>
             </div>
           </div>
+          <div>
+            <h1>Consumption</h1>
+            <Line data={data} />
+          </div>
         </div>
+        
       </div>
+      
     </div>
     
   );
 }
 
-export default MyComponent;
+
+//export default MyComponent;
+export default UnderConstructionView;
 
