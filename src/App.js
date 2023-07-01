@@ -130,7 +130,7 @@ async function QueryOnUser(passedName, passedDate) {
         const localDateOnly = localDate.toLocaleDateString();
         
         if (localDateOnly == localDateElements[i]) {
-          consumeCount+=jsonItems[j].quantity;
+          consumeCount+=parseInt(jsonItems[j].quantity);  //Parse int is needed here for parsing the "string" quantities posted by the ESP32 modules
         }
 
       }
