@@ -3,6 +3,63 @@ import './App.css';
 import logo from './logo.svg';
 import Chart from 'chart.js/auto';
 import { Line } from "react-chartjs-2";
+import moment from 'moment'; // Import the date library
+import 'chartjs-adapter-moment'; // Import the adapter for Moment.js
+
+
+var idValue = '';
+var isoString_from_date = '';
+var isoString_now = '';
+
+const waterQTY = 24;
+
+const apiStringPut = {
+  "operation": "create",
+  "payload": {
+    "Item": {
+      "id": idValue,
+      "dt": isoString_now,
+      "quantity": waterQTY
+    }
+  }
+};
+
+const api_query_user_since_date = {
+  "operation": "query",
+  "payload": {
+      "TableName": "udra-one",
+      "KeyConditionExpression": "#partitionKey = :partitionValue AND #sortKey >= :sortValue",
+      "ExpressionAttributeNames": {
+          "#partitionKey": "id",
+          "#sortKey": "dt"
+      },
+      "ExpressionAttributeValues": {
+          ":partitionValue": `${idValue}`,
+          ":sortValue": `${isoString_from_date}` 
+      },
+      "ConsistentRead": true
+  }
+};
+
+const options = {
+  scaleShowValues: false,
+  scales: {
+    x: {
+      type: 'time',
+      time: {
+        unit: 'day', // Customize the display unit (e.g., 'day', 'week', 'month')
+        displayFormats: {
+          day: 'MM-DD' // Customize the date format
+        }
+      },
+      ticks: {
+        //maxRotation: 0, // Prevent label rotation if needed
+        //autoSkip: false,
+        //padding: 2
+      }
+    }
+  }
+};
 
 function UnderConstructionView() {
   return (
@@ -12,21 +69,85 @@ function UnderConstructionView() {
   )
 }
 
+async function QueryOnUser(passedName, passedDate) {
+  api_query_user_since_date.payload.ExpressionAttributeValues[":partitionValue"] = passedName;
+  api_query_user_since_date.payload.ExpressionAttributeValues[":sortValue"] = passedDate;
+
+  //Query all Entries from User since Time X
+  var response = await fetch('https://w75zszy1n7.execute-api.us-east-2.amazonaws.com/test/dynamodbmanager', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(api_query_user_since_date)
+    }); 
+
+    const jsonData = await response.json();
+    const itemCount = jsonData.Count;
+    const jsonItems = jsonData.Items;
+
+    const dateElements = [];
+    const countElements = [];
+    const currentDate = new Date();
+    for (let i = 6; i >= 0; i--) {
+      const newDate = new Date();
+      newDate.setDate(currentDate.getDate() - i);
+      const isoDate = new Date(newDate).toISOString();
+      //TODO - Convert from Z to user's timezone
+      const dateOnly = isoDate.split("T")[0].toString();
+      dateElements.push(dateOnly);
+    }
+    
+    for (let i = 0; i < dateElements.length; i++) {
+      var consumeCount = 0;
+      for (let j = 0; j < jsonItems.length; j++) {
+        const jsonDate = jsonItems[j].dt;
+        const newDate = new Date();
+        const dateOnly = jsonDate.split("T")[0].toString();
+        if (dateOnly == dateElements[i]) {
+          consumeCount+=jsonItems[j].quantity;
+        }
+      }
+      countElements.push(consumeCount);
+    }
+
+    //Set Graph Components
+    const graphData = {
+      labels: dateElements,
+      datasets: [
+        {
+          label: 'Water Consumption',
+          data: countElements,
+          fill: true,
+          borderColor: 'rgb(75, 192, 192)',
+          tension: 0.1
+        }
+      ]
+    };
+
+    return graphData;
+}
+
 function MyComponent() {
 
-  //Chart data
-  const data = {
-    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-    datasets: [
-      {
-        label: 'Last 7 Days',
-        data: [65, 59, 80, 81, 56, 55, 40],
-        fill: true,
-        borderColor: 'rgb(75, 192, 192)',
-        tension: 0.1
-      }
-    ]
-  };
+
+  // //Chart data
+  // const dataTest = {
+  //   labels: [],
+  //   datasets: [
+  //     {
+  //       label: 'Water Consumption',
+  //       data: [],
+  //       fill: true,
+  //       borderColor: 'rgb(75, 192, 192)',
+  //       tension: 0.1
+  //     }
+  //   ]
+  // };
+
+
+
+  const [data, setGraphData] = useState(null);
 
   //const [formData, setFormData] = useState({ name: '', email: '' });
   const [formData, setFormData] = useState({ name: ''});
@@ -36,9 +157,12 @@ function MyComponent() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    if (formData.name != '') {
+      idValue = formData.name;
+
     try {
 
-      const idValue = formData.name;
+      // const idValue = formData.name;
       const apiStringRead = {
         "operation": "read",
         "payload": {
@@ -49,66 +173,124 @@ function MyComponent() {
       };
 
       const currentDate = new Date();
-      const isoString_now = currentDate.toISOString();
+      isoString_now = currentDate.toISOString();
 
       const fromDate = new Date();
       fromDate.setDate(currentDate.getDate() - 7);
-      const isoString_from_date = fromDate.toISOString();
-      console.log(isoString_from_date);
+      isoString_from_date = fromDate.toISOString();
+      //console.log("From date: " + isoString_from_date);
       
       
-      const apiStringPut = {
-        "operation": "create",
-        "payload": {
-          "Item": {
-            "id": `${idValue}`,
-            "dt": `${isoString_now}`,
-            "quantity": 1
-          }
-        }
-      };
+      // const apiStringPut = {
+      //   "operation": "create",
+      //   "payload": {
+      //     "Item": {
+      //       "id": `${idValue}`,
+      //       "dt": `${isoString_now}`,
+      //       "quantity": 1
+      //     }
+      //   }
+      // };
 
-      const api_query_user_since_date = {
-        "operation": "query",
-        "payload": {
-            "TableName": "udra-one",
-            "KeyConditionExpression": "#partitionKey = :partitionValue AND #sortKey >= :sortValue",
-            "ExpressionAttributeNames": {
-                "#partitionKey": "id",
-                "#sortKey": "dt"
-            },
-            "ExpressionAttributeValues": {
-                ":partitionValue": `${idValue}`,
-                ":sortValue": `${isoString_from_date}` 
-            },
-            "ConsistentRead": true
-        }
-      };
-
-      
+      // const api_query_user_since_date = {
+      //   "operation": "query",
+      //   "payload": {
+      //       "TableName": "udra-one",
+      //       "KeyConditionExpression": "#partitionKey = :partitionValue AND #sortKey >= :sortValue",
+      //       "ExpressionAttributeNames": {
+      //           "#partitionKey": "id",
+      //           "#sortKey": "dt"
+      //       },
+      //       "ExpressionAttributeValues": {
+      //           ":partitionValue": `${idValue}`,
+      //           ":sortValue": `${isoString_from_date}` 
+      //       },
+      //       "ConsistentRead": true
+      //   }
+      // };
 
       
+
+      //Update Attributes of API JSON
+      apiStringPut.payload.Item['id'] = idValue;
+      apiStringPut.payload.Item['dt'] = isoString_now;
+      api_query_user_since_date.payload.ExpressionAttributeValues[":partitionValue"] = idValue;
+      api_query_user_since_date.payload.ExpressionAttributeValues[":sortValue"] = isoString_from_date;
+
+
       //Create Entry
       var response = await fetch('https://w75zszy1n7.execute-api.us-east-2.amazonaws.com/test/dynamodbmanager', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-
       body: JSON.stringify(apiStringPut)
       }); 
+      //console.log(apiStringPut);
 
-      //Query all Entries from User since Time X
-      response = await fetch('https://w75zszy1n7.execute-api.us-east-2.amazonaws.com/test/dynamodbmanager', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      // //Query all Entries from User since Time X
+      // response = await fetch('https://w75zszy1n7.execute-api.us-east-2.amazonaws.com/test/dynamodbmanager', {
+      // method: 'POST',
+      // headers: {
+      //   'Content-Type': 'application/json'
+      // },
+      // body: JSON.stringify(api_query_user_since_date)
+      // }); 
 
-      body: JSON.stringify(api_query_user_since_date)
-      }); 
+      // const jsonData = await response.json();
+      // const itemCount = jsonData.Count;
+      // const jsonItems = jsonData.Items;
 
-      const jsonData = await response.json();
+      // // const dateArray = jsonItems.dt.map(item => {
+      // //   const isoDate = new Date(item).toISOString();
+      // //   const dateOnly = isoDate.split("T")[0];
+      // //   return dateOnly;
+      // // });
+
+      // // console.log(dateArray);
+      
+      // const dateElements = [];
+      // const countElements = [];
+      // for (let i = 6; i >= 0; i--) {
+      //   const newDate = new Date();
+      //   newDate.setDate(currentDate.getDate() - i);
+      //   const isoDate = new Date(newDate).toISOString();
+      //   //TODO - Convert from Z to user's timezone
+      //   const dateOnly = isoDate.split("T")[0].toString();
+      //   dateElements.push(dateOnly);
+      // }
+      
+      // for (let i = 0; i < dateElements.length; i++) {
+      //   var consumeCount = 0;
+      //   for (let j = 0; j < jsonItems.length; j++) {
+      //     const jsonDate = jsonItems[j].dt;
+      //     const newDate = new Date();
+      //     const dateOnly = jsonDate.split("T")[0].toString();
+      //     if (dateOnly == dateElements[i]) {
+      //       consumeCount++;
+      //     }
+      //   }
+      //   countElements.push(consumeCount);
+      // }
+
+
+      // //const stringTest = ['6-24', '6-25', '6-26', '6-27', '6-28', '6-29', '6-30'];
+      // //Set Graph Components
+      // const graphData = {
+      //   labels: dateElements,
+      //   datasets: [
+      //     {
+      //       label: 'Water Consumption',
+      //       data: countElements,
+      //       fill: true,
+      //       borderColor: 'rgb(75, 192, 192)',
+      //       tension: 0.1
+      //     }
+      //   ]
+      // };
+
+      const graphData = await QueryOnUser(idValue, isoString_from_date);
+      setGraphData(graphData);
 
       // const response = await fetch('https://w75zszy1n7.execute-api.us-east-2.amazonaws.com/test/dynamodbmanager', {
       //   method: 'POST',
@@ -160,7 +342,8 @@ function MyComponent() {
       if (response.ok) {
         // Request was successful
         console.log('POST request succeeded');
-        console.log(jsonData);
+        //console.log(jsonData.Count);
+        //console.log(jsonData.Items);
       } else {
         // Request was not successful
         console.log('POST request failed');
@@ -168,11 +351,30 @@ function MyComponent() {
     } catch (error) {
       console.error('Error making POST request:', error);
     }
+    }
+
+    
   };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
+  };
+
+  const handleGraphUpdate = async (event) => {
+
+    event.preventDefault();
+
+    if (formData.name != '') {
+      const currentDate = new Date();
+      const fromDate = new Date();
+      fromDate.setDate(currentDate.getDate() - 7);
+      isoString_from_date = fromDate.toISOString();
+      const response = await QueryOnUser(formData.name, isoString_from_date);
+      setGraphData(response);
+    }
+    
+
   };
 
   return (
@@ -202,7 +404,10 @@ function MyComponent() {
                 </label>
                 <br />
                 <br />
-                <button type="submit">Refill Bottle</button>
+                <button type="submit">Refill Bottle (24 oz)</button>
+              </form>
+              <form onSubmit={handleGraphUpdate}>
+                <button type="submit">View Graph</button>
               </form>
               <div>
                 {jsonDisplay ? (
@@ -214,12 +419,19 @@ function MyComponent() {
                   <p></p>
                 )}
               </div>
+              <div>
+                {data ? (
+                    <div className="graph-content">
+                      <Line data={data} options={options} />
+                    </div>
+                  ) : (
+                    <p></p>
+                  )}
+                
+              </div>
             </div>
           </div>
-          <div>
-            <h1>Consumption</h1>
-            <Line data={data} />
-          </div>
+          
         </div>
         
       </div>
@@ -230,6 +442,6 @@ function MyComponent() {
 }
 
 
-//export default MyComponent;
-export default UnderConstructionView;
+export default MyComponent;
+//export default UnderConstructionView;
 

@@ -99,3 +99,11 @@
   height: 100%;
   object-fit: cover; /* Maintain the aspect ratio and cover the container */
 }
+
+.graph-content {
+  width: auto;
+  padding: 10px;
+  background-color: white;
+  border-radius: 10px; /* Rounded edges */
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.8); /* Box shadow for depth effect */
+}
