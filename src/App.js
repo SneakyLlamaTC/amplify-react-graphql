@@ -5,6 +5,7 @@ import Chart from 'chart.js/auto';
 import { Line } from "react-chartjs-2";
 import moment from 'moment'; // Import the date library
 import 'chartjs-adapter-moment'; // Import the adapter for Moment.js
+import { Auth } from 'aws-amplify';
 
 
 var idValue = '';
@@ -392,17 +393,21 @@ function MyComponent() {
 
     event.preventDefault();
 
-    if (formData.name != '') {
+    //test of sign up
+    signUp();
+
+    // if (formData.name != '') {
 
 
-      idValue = TrimName(formData.name);
-      const currentDate = new Date();
-      const fromDate = new Date();
-      fromDate.setDate(currentDate.getDate() - 7);
-      isoString_from_date = fromDate.toISOString();
-      const response = await QueryOnUser(idValue, isoString_from_date);
-      setGraphData(response);
-    }
+    //   idValue = TrimName(formData.name);
+    //   const currentDate = new Date();
+    //   const fromDate = new Date();
+    //   fromDate.setDate(currentDate.getDate() - 7);
+    //   isoString_from_date = fromDate.toISOString();
+    //   const response = await QueryOnUser(idValue, isoString_from_date);
+    //   setGraphData(response);
+    // }
+
     
 
   };
@@ -472,6 +477,27 @@ function MyComponent() {
 }
 
 
+async function signUp() {
+  try {
+    const { user } = await Auth.signUp({
+      username: "test",
+      password: "ABcd1234!@#",
+      attributes: {
+        email: "tcham73@gmail.com",          // optional
+        //phone_number,   // optional - E.164 number convention
+        // other custom attributes 
+      },
+      autoSignIn: { // optional - enables auto sign in after user is confirmed
+        enabled: true,
+      }
+    });
+    console.log(user);
+  } catch (error) {
+    console.log('error signing up:', error);
+  }
+}
+
 export default MyComponent;
 //export default UnderConstructionView;
+
 
