@@ -5,7 +5,9 @@ import Chart from 'chart.js/auto';
 import { Line } from "react-chartjs-2";
 import moment from 'moment'; // Import the date library
 import 'chartjs-adapter-moment'; // Import the adapter for Moment.js
-import { Auth } from 'aws-amplify';
+import { Amplify, Auth } from 'aws-amplify';
+import awsconfig from './aws-exports';
+Amplify.configure(awsconfig);
 
 
 var idValue = '';
@@ -480,7 +482,7 @@ function MyComponent() {
 async function signUp() {
   try {
     const { user } = await Auth.signUp({
-      username: "test",
+      username: "tcham73@gmail.com",
       password: "ABcd1234!@#",
       attributes: {
         email: "tcham73@gmail.com",          // optional
@@ -497,7 +499,7 @@ async function signUp() {
   }
 }
 
-export default MyComponent;
-//export default UnderConstructionView;
+//export default MyComponent;
+export default UnderConstructionView;
 
 
