@@ -396,19 +396,19 @@ function MyComponent() {
     event.preventDefault();
 
     //test of sign up
-    signUp();
+    //signUp();
 
-    // if (formData.name != '') {
+    if (formData.name != '') {
 
 
-    //   idValue = TrimName(formData.name);
-    //   const currentDate = new Date();
-    //   const fromDate = new Date();
-    //   fromDate.setDate(currentDate.getDate() - 7);
-    //   isoString_from_date = fromDate.toISOString();
-    //   const response = await QueryOnUser(idValue, isoString_from_date);
-    //   setGraphData(response);
-    // }
+      idValue = TrimName(formData.name);
+      const currentDate = new Date();
+      const fromDate = new Date();
+      fromDate.setDate(currentDate.getDate() - 7);
+      isoString_from_date = fromDate.toISOString();
+      const response = await QueryOnUser(idValue, isoString_from_date);
+      setGraphData(response);
+    }
 
     
 
@@ -499,7 +499,7 @@ async function signUp() {
   }
 }
 
-//export default MyComponent;
-export default UnderConstructionView;
+export default MyComponent;
+//export default UnderConstructionView;
 
 
